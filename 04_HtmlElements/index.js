@@ -13,6 +13,8 @@ function pageLoaded() {
     txt2 = document.querySelector('#txt2');
     btn = document.getElementById('btnCalc');
     lblRes = document.getElementById('lblRes');
+    txt1.addEventListener("input",() => validateInput(txt1));
+    txt2.addEventListener("input",() => validateInput(txt2));
     btn.addEventListener('click', () => {
         calculate();
     });
@@ -29,14 +31,7 @@ function calculate() {
 
     let res = num1 + num2;
     lblRes.innerText = res;
-
-
-
 }
-
-
-
-
 
 const btn2 = document.getElementById("btn2");
 btn2.addEventListener("click", () => {
@@ -165,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 })();
 
-
 // ====================================================
 // EXTRA: WRITE EACH CALCULATION AS A LOG LINE
 // ====================================================
@@ -182,3 +176,16 @@ document.addEventListener("DOMContentLoaded", () => {
         print(logLine, true);   // append mode
     });
 });
+
+function validateInput(inputElement) {
+    const value = inputElement.value.trim();
+    const num = Number(value);
+    const isNumber = !isNaN(num) && String(num) === value;
+    if (isNumber) {
+        inputElement.classList.add("is-valid");
+        inputElement.classList.remove("is-invalid");
+    } else {
+        inputElement.classList.add("is-invalid");
+        inputElement.classList.remove("is-valid");
+    }
+}
