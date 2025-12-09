@@ -23,6 +23,7 @@ function SaveAndRender() {
 
     localStorage.setItem('songs', JSON.stringify(songs));
 
+    applySorting();
     // RENDER UI TABLE
     renderSongs();
 }
@@ -211,24 +212,76 @@ function applySorting() {
 
 // Play song in a popup YouTube player.
 function playSong(url) {
-    // Extract the YouTube video ID from the URL.
     const videoId = extractVideoId(url);
-    // If no valid video ID was found, show an error and stop.
     if (!videoId) {
         alert("Invalid YouTube URL");
         return;
     }
-    // Build the YouTube embed URL with autoplay enabled.
+    // Use the embed URL for iframe playback inside the popup
     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    // Open the video in a popup window (YouTube player).
-    window.open(
-        embedUrl,
-        "youtubePopup",
-        "width=800,height=500,noopener"
-    );
+    showVideoPopup(embedUrl);
 }
 
-// Sortrt songs when opening the page
-applySorting();
+/* ---------- INLINE POPUP VIDEO PLAYER ---------- */
+function showVideoPopup(embedUrl) {
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.id = "videoOverlay";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.background = "rgba(0,0,0,0.8)";
+    overlay.style.display = "flex";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.zIndex = "9999";
+
+    // Popup box
+    const popup = document.createElement("div");
+    popup.style.position = "relative";
+    popup.style.width = "80%";
+    popup.style.maxWidth = "900px";
+    popup.style.aspectRatio = "16/9";
+    popup.style.background = "black";
+    popup.style.boxShadow = "0 0 25px rgba(0,0,0,0.6)";
+
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.innerHTML = "✕";
+    closeBtn.style.position = "absolute";
+    closeBtn.style.top = "8px";
+    closeBtn.style.right = "12px";
+    closeBtn.style.fontSize = "22px";
+    closeBtn.style.border = "none";
+    closeBtn.style.background = "rgba(0,0,0,0.6)";
+    closeBtn.style.color = "white";
+    closeBtn.style.padding = "4px 10px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.zIndex = "3";
+
+    // Close handler
+    closeBtn.onclick = () => document.body.removeChild(overlay);
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    };
+
+    // Video iframe
+    const iframe = document.createElement("iframe");
+    iframe.src = embedUrl;
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.frameBorder = "0";
+    iframe.allow = "autoplay; encrypted-media";
+    iframe.allowFullscreen = true;
+
+    popup.appendChild(closeBtn);
+    popup.appendChild(iframe);
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+}
 // Load songs from localStorage when opening the page or refreshing
 renderSongs();
